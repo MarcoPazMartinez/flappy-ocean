@@ -23,3 +23,7 @@ Este documento describe el flujo de pantallas y navegación del juego Flappy Oce
 | Ranking | Selección de "Continuar" | Opciones Finales |
 | Opciones Finales | Clic en "Jugar nuevamente" | Juego (Reinicia parámetros) |
 | Opciones Finales | Clic en "Salir" | Cierre del programa |
+
+## Diagrama Visual
+
+<img width="1290" height="260" alt="Diagrama sin título drawio (1)" src="https://github.com/user-attachments/assets/5051353e-137d-4c89-9711-0b7b429e9b09" />
