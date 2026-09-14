@@ -1,71 +1,70 @@
 import pygame
 import sys
+from jugador import Jugador
+from enemigo import Enemigo
 
-#inicio
-pygame.init()
-
-ANCHO, ALTO = 800, 600
-pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Flappy Ocean - Dev Build")
-clock = pygame.time.Clock()
-
-#variables del juego
-pez = pygame.Rect(100, 275, 40, 30)
-velocidad_y = 0
-GRAVEDAD = 800
-IMPULSO = -300
-
-# colores
-COLOR_AGUA = (20, 40, 80)
-COLOR_PEZ = (255, 140, 0)
-COLOR_TEXTO = (255, 255, 255)
-
-fuente = pygame.font.Font(None, 30)
-
-#loop del juego
-running = True
-while running:
-    # tiempo delta (dt) para movimiento suave
-    dt = clock.tick(60) / 1000.0
-
-    # manejo de eventos
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+def main():
+    pygame.init()
+    
+    ANCHO, ALTO = 800, 600
+    pantalla = pygame.display.set_mode((ANCHO, ALTO))
+    pygame.display.set_caption("Práctico Pygame - Esquivar Enemigos")
+    
+    clock = pygame.time.Clock()
+    screen_rect = pantalla.get_rect()
+    
+    todos_los_sprites = pygame.sprite.Group()
+    enemigos = pygame.sprite.Group()
+    
+    jugador = Jugador(ANCHO // 2, ALTO - 100)
+    todos_los_sprites.add(jugador)
+    
+    timer_enemigo = 0.0
+    puntaje = 0.0
+    fuente = pygame.font.SysFont(None, 36)
+    
+    running = True
+    while running:
+        dt = clock.tick(60) / 1000.0  # Delta time en segundos
         
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                velocidad_y = IMPULSO
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
                 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1: # Clic izquierdo
-                velocidad_y = IMPULSO
+        
+        timer_enemigo += dt
+        if timer_enemigo >= 1.0:
+            timer_enemigo = 0.0
+            nuevo_enemigo = Enemigo()
+            todos_los_sprites.add(nuevo_enemigo)
+            enemigos.add(nuevo_enemigo)
+            
+        puntaje += dt * 10
+        
+        
+        jugador.update(dt, screen_rect)
+        enemigos.update(dt, ALTO)
+        
+        
+        if pygame.sprite.spritecollideany(jugador, enemigos):
+            print("¡Game Over!")
+            running = False
+            
+        
+        pantalla.fill((30, 30, 30))
+        todos_los_sprites.draw(pantalla)
+        
+        
+        fps_texto = fuente.render(f"FPS: {int(clock.get_fps())}", True, (255, 255, 255))
+        puntaje_texto = fuente.render(f"Puntaje: {int(puntaje)}", True, (255, 255, 255))
+        
+        pantalla.blit(fps_texto, (10, 10))
+        pantalla.blit(puntaje_texto, (10, 45))
+        
+        pygame.display.flip()
+        
+    pygame.quit()
+    sys.exit()
 
-    # actualizar estado del juego
-    # aplicar gravedad y actualizar posición del pez
-    velocidad_y += GRAVEDAD * dt
-    pez.y += velocidad_y * dt
-
-    # limitar al pez dentro de la pantalla
-    if pez.top < 0:
-        pez.top = 0
-        velocidad_y = 0
-    if pez.bottom > ALTO:
-        pez.bottom = ALTO
-        velocidad_y = 0
-
-    # dibujar en pantalla
-    pantalla.fill(COLOR_AGUA) # limpiar fondo
-    
-    # dibujar el pez
-    pygame.draw.rect(pantalla, COLOR_PEZ, pez)
-    
-    # contador de fps
-    fps_texto = fuente.render(f"FPS: {int(clock.get_fps())}", True, COLOR_TEXTO)
-    pantalla.blit(fps_texto, (10, 10))
-
-    pygame.display.flip()
-
-# cierre del juego  
-pygame.quit()
-sys.exit()
+if __name__ == "__main__":
+    main()
