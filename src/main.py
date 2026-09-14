@@ -61,7 +61,7 @@ def main():
         pantalla.blit(fps_texto, (10, 10))
         pantalla.blit(puntaje_texto, (10, 45))
         
-        pygame.display.flip()
+        pygame.display.flip(    )
         
     pygame.quit()
     sys.exit()
