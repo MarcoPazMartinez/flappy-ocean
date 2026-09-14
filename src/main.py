@@ -1,70 +1,97 @@
 import pygame
 import sys
-from jugador import Jugador
-from enemigo import Enemigo
+from camara import Camara
+from laberinto import obtener_paredes_y_dimensiones, TILE
 
 def main():
     pygame.init()
     
-    ANCHO, ALTO = 800, 600
+    ANCHO, ALTO = 640, 480
     pantalla = pygame.display.set_mode((ANCHO, ALTO))
-    pygame.display.set_caption("Práctico Pygame - Esquivar Enemigos")
+    pygame.display.set_caption("Laberinto con cámara y colisiones")
     
     clock = pygame.time.Clock()
-    screen_rect = pantalla.get_rect()
     
-    todos_los_sprites = pygame.sprite.Group()
-    enemigos = pygame.sprite.Group()
+    paredes, ancho_mundo, alto_mundo = obtener_paredes_y_dimensiones()
+    camara = Camara(ancho_mundo, alto_mundo, ANCHO, ALTO)
     
-    jugador = Jugador(ANCHO // 2, ALTO - 100)
-    todos_los_sprites.add(jugador)
+    jugador = pygame.Rect(TILE * 1.5, TILE * 1.5, 30, 30)
+    velocidad = 4
     
-    timer_enemigo = 0.0
-    puntaje = 0.0
-    fuente = pygame.font.SysFont(None, 36)
+    
+    meta = pygame.Rect(ancho_mundo - (TILE * 2), alto_mundo - (TILE * 2), 30, 30)
+    
+    fuente = pygame.font.SysFont(None, 48)
+    ganado = False
     
     running = True
     while running:
-        dt = clock.tick(60) / 1000.0  # Delta time en segundos
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 
+        dx = dy = 0
+        keys = pygame.key.get_pressed()
+        if not ganado:
+            if keys[pygame.K_LEFT]:
+                dx = -velocidad
+            if keys[pygame.K_RIGHT]:
+                dx = velocidad
+            if keys[pygame.K_UP]:
+                dy = -velocidad
+            if keys[pygame.K_DOWN]:
+                dy = velocidad
+                
         
-        timer_enemigo += dt
-        if timer_enemigo >= 1.0:
-            timer_enemigo = 0.0
-            nuevo_enemigo = Enemigo()
-            todos_los_sprites.add(nuevo_enemigo)
-            enemigos.add(nuevo_enemigo)
+        jugador.x += dx
+        for p in paredes:
+            if jugador.colliderect(p):
+                if dx > 0:
+                    jugador.right = p.left
+                elif dx < 0:
+                    jugador.left = p.right
+                    
+        
+        jugador.y += dy
+        for p in paredes:
+            if jugador.colliderect(p):
+                if dy > 0:
+                    jugador.bottom = p.top
+                elif dy < 0:
+                    jugador.top = p.bottom
+                    
+        
+        if not ganado and jugador.colliderect(meta):
+            print("¡Ganaste!")
+            ganado = True
             
-        puntaje += dt * 10
+        
+        camara.seguir(jugador)
         
         
-        jugador.update(dt, screen_rect)
-        enemigos.update(dt, ALTO)
+        pantalla.fill((20, 20, 30))
         
         
-        if pygame.sprite.spritecollideany(jugador, enemigos):
-            print("¡Game Over!")
-            running = False
+        for p in paredes:
+            pygame.draw.rect(pantalla, (70, 110, 200), camara.aplicar(p))
             
         
-        pantalla.fill((30, 30, 30))
-        todos_los_sprites.draw(pantalla)
+        pygame.draw.rect(pantalla, (50, 220, 100), camara.aplicar(meta))
         
         
-        fps_texto = fuente.render(f"FPS: {int(clock.get_fps())}", True, (255, 255, 255))
-        puntaje_texto = fuente.render(f"Puntaje: {int(puntaje)}", True, (255, 255, 255))
+        pygame.draw.rect(pantalla, (240, 200, 80), camara.aplicar(jugador))
         
-        pantalla.blit(fps_texto, (10, 10))
-        pantalla.blit(puntaje_texto, (10, 45))
-        
-        pygame.display.flip(    )
+        if ganado:
+            texto_ganar = fuente.render("¡Ganaste!", True, (255, 255, 0))
+            pantalla.blit(texto_ganar, (ANCHO // 2 - 100, ALTO // 2 - 30))
+            
+        pygame.display.flip()
+        clock.tick(60)
         
     pygame.quit()
     sys.exit()
 
 if __name__ == "__main__":
     main()
+    
+    
