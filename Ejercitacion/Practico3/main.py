@@ -7,7 +7,7 @@ pygame.init()
 ANCHO, ALTO = 800, 600
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption(
-    "Práctico Clase 3 - Ejercicio 2: Esquivar Enemigos"
+    "Práctico Clase 3 - Ejercicio 2 Esquivar Enemigos"
 )
 clock = pygame.time.Clock()
 fuente = pygame.font.Font(None, 36)

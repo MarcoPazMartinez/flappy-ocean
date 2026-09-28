@@ -10,14 +10,14 @@ class Camara:
         self.offset_y = 0
 
     def seguir(self, objetivo):
-        
-        self.offset_x = objetivo.centerx - self.ancho_pantalla // 2
-        self.offset_y = objetivo.centery - self.alto_pantalla // 2
-
+        """Centra la cámara horizontalmente en el jugador y calcula el desplazamiento."""
     
+        self.offset_x = objetivo.rect.centerx - self.ancho_pantalla // 3
+        self.offset_y = 0  
+
+        
         self.offset_x = max(0, min(self.offset_x, self.ancho_mundo - self.ancho_pantalla))
-        self.offset_y = max(0, min(self.offset_y, self.alto_mundo - self.alto_pantalla))
 
     def aplicar(self, rect):
-        
+        """Devuelve un rectángulo trasladado a las coordenadas de pantalla usando el offset."""
         return rect.move(-self.offset_x, -self.offset_y)
