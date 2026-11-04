@@ -15,7 +15,6 @@ class Camara:
         self.offset_x = objetivo.rect.centerx - self.ancho_pantalla // 3
         self.offset_y = 0  
 
-        
         self.offset_x = max(0, min(self.offset_x, self.ancho_mundo - self.ancho_pantalla))
 
     def aplicar(self, rect):
