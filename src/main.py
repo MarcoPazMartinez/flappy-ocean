@@ -249,12 +249,17 @@ while running:
         colision = None
 
         # Comprobar colisión con algas
-        if pygame.sprite.spritecollideany(jugador, obstaculos):
+        # (collide_mask: solo cuentan los píxeles dibujados, no el rectángulo)
+        if pygame.sprite.spritecollideany(
+            jugador, obstaculos, pygame.sprite.collide_mask
+        ):
 
             colision = "alga"
 
         # Comprobar colisión con enemigos
-        elif pygame.sprite.spritecollideany(jugador, enemigos):
+        elif pygame.sprite.spritecollideany(
+            jugador, enemigos, pygame.sprite.collide_mask
+        ):
 
             colision = "enemigo"
 
@@ -279,7 +284,8 @@ while running:
 
                 enemigo_colisionado = pygame.sprite.spritecollideany(
                     jugador,
-                    enemigos
+                    enemigos,
+                    pygame.sprite.collide_mask
                 )
 
                 if enemigo_colisionado:

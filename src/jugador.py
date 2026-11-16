@@ -1,6 +1,8 @@
 
 import pygame
 
+from recursos import cargar_imagen
+
 
 class Jugador(pygame.sprite.Sprite):
 
@@ -8,8 +10,11 @@ class Jugador(pygame.sprite.Sprite):
 
         super().__init__()
 
-        self.image = pygame.Surface((80, 80))
-        self.image.fill((0, 200, 255))
+        self.image = cargar_imagen("jugador.png", (80, 80), (0, 200, 255))
+
+        # La máscara marca los píxeles dibujados del pez: las colisiones
+        # ignoran las esquinas transparentes de la imagen
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)

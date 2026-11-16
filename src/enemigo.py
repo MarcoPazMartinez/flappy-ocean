@@ -2,14 +2,20 @@ import pygame
 import random
 import math
 
+from recursos import cargar_imagen
+
 
 class AnimalMarino(pygame.sprite.Sprite):
 
     def __init__(self, x_mundo, alto_pantalla):
         super().__init__()
 
-        self.image = pygame.Surface((72, 72))
-        self.image.fill((255, 100, 100))
+        imagen = cargar_imagen("enemigo.png", (72, 72), (255, 100, 100))
+
+        # La imagen mira hacia la derecha, pero el animal nada hacia la
+        # izquierda: se da vuelta (espejo horizontal)
+        self.image = pygame.transform.flip(imagen, True, False)
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
 
