@@ -8,11 +8,14 @@ class Jugador(pygame.sprite.Sprite):
 
         super().__init__()
 
-        self.image = pygame.Surface((50, 40))
+        self.image = pygame.Surface((80, 80))
         self.image.fill((0, 200, 255))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+
+        # Posición vertical inicial: se usa al reaparecer
+        self.y_inicial = y
 
         self.velocidad_y = 0
         self.gravedad = 600
@@ -32,7 +35,7 @@ class Jugador(pygame.sprite.Sprite):
 
         self.rect.x = max(0, self.rect.x - 120)
 
-        self.rect.y = 275
+        self.rect.y = self.y_inicial
 
         self.velocidad_y = 0
 

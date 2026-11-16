@@ -20,4 +20,4 @@
 * **RNF-01**: El juego debe ejecutarse de forma fluida a 60 FPS estables utilizando Pygame.
 * **RNF-02**: Los controles de entrada deben responder de manera inmediata y suave aplicando Delta Time (`dt`).
 * **RNF-03**: El código debe estructurarse de manera modular en archivos independientes dentro de `src/`.
-* **RNF-04**: La interfaz del juego debe adaptarse a una resolución fija de 800x600 píxeles.
+* **RNF-04**: La interfaz del juego debe adaptarse a una resolución fija de 1280x720 píxeles.
