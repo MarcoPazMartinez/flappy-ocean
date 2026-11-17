@@ -22,7 +22,9 @@ def crear_imagen_meta():
 
     # Reflejos del cristal
     pygame.draw.rect(imagen, (255, 255, 255, 120), (50, tubo.top + 16, ANCHO_META - 100, 12), border_radius=6)
-    pygame.draw.rect(imagen, (255, 255, 255, 60), (50, tubo.bottom - 24, ANCHO_META - 100, 7), border_radius=4)
+    pygame.draw.rect(
+        imagen, (255, 255, 255, 60), (50, tubo.bottom - 24, ANCHO_META - 100, 7), border_radius=4
+    )
 
     # Aros a cuadros blanco y negro en las dos puntas (como una línea de llegada).
     # Se dibujan aparte y se recortan con la forma redondeada del tubo, para que

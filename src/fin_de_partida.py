@@ -270,7 +270,8 @@ def mostrar_resultados(pantalla, reloj, resultado, estado_guardado, posicion):
     elif estado_guardado == ERROR:
         mensaje, color_mensaje = "No se pudo guardar el puntaje (falló la base de datos).", (255, 130, 130)
     else:
-        mensaje, color_mensaje = f"No alcanzaste el Top {db.LIMITE_RANKING} esta vez. ¡Seguí intentando!", (255, 255, 255)
+        mensaje = f"No alcanzaste el Top {db.LIMITE_RANKING} esta vez. ¡Seguí intentando!"
+        color_mensaje = (255, 255, 255)
 
     texto_mensaje = texto_con_borde(fuente_mensaje, mensaje, color_mensaje, (0, 25, 70), 2)
 
