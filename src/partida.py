@@ -19,6 +19,11 @@ from obstaculo import ANCHO_HEBRA, SEPARACION_HEBRAS, VELOCIDAD_ALGA, Alga
 
 
 FPS = 60
+
+# Un cuadro nunca cuenta más que esto, aunque haya tardado mucho (por ejemplo, al arrastrar
+# la ventana el juego se congela). Sin este tope, al volver los obstáculos "saltan" y pueden
+# atravesar al pez sin chocarlo, y el tiempo de la partida avanza de golpe.
+DT_MAXIMO = 0.05
 COLOR_FONDO = (20, 40, 80)
 
 
@@ -349,6 +354,8 @@ class Partida:
 
     def actualizar(self, dt):
         """Avanza la partida dt segundos."""
+
+        dt = min(dt, DT_MAXIMO)
 
         self.tiempo += dt
 
