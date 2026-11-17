@@ -22,16 +22,19 @@ FPS = 60
 COLOR_FONDO = (20, 40, 80)
 
 
+SEGUNDOS_DE_PARTIDA = 120.0       # 2 minutos hasta llegar a la meta
+
+
 def leer_limite_de_tiempo():
-    """Segundos que dura la partida: 90.
+    """Segundos que dura la partida (SEGUNDOS_DE_PARTIDA).
 
     Para probar el final del juego sin esperar, se puede acortar desde la terminal
     (mínimo 10 segundos):  FLAPPY_LIMITE_TIEMPO=20 python main.py
     """
     try:
-        return max(10.0, float(os.environ.get("FLAPPY_LIMITE_TIEMPO", 90.0)))
+        return max(10.0, float(os.environ.get("FLAPPY_LIMITE_TIEMPO", SEGUNDOS_DE_PARTIDA)))
     except ValueError:
-        return 90.0
+        return SEGUNDOS_DE_PARTIDA
 
 
 # Reglas

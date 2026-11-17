@@ -8,7 +8,7 @@
 * **RF-04**: El jugador inicia la partida con 3 vidas y una barra de energía llena.
 * **RF-05**: Al chocar contra un alga, el jugador pierde 1 vida, el pez es reubicado en una posición segura detrás del obstáculo y el juego se pausa hasta que el jugador vuelva a presionar la barra espaciadora o haga clic.
 * **RF-06**: Al colisionar con un animal marino, se reduce un porcentaje de la barra de energía del jugador.
-* **RF-07**: La partida finaliza (Game Over) si el jugador pierde las 3 vidas, si la barra de energía llega a cero, o si transcurre el tiempo límite de 1 minuto (60 segundos).
+* **RF-07**: La partida finaliza con **Game Over** si el jugador pierde las 3 vidas o si la barra de energía llega a cero. Si sobrevive hasta que se cumple el tiempo límite de 2 minutos (120 segundos), llega a la meta (un tubo de cristal al que el pez entra nadando) y **gana** la partida.
 * **RF-08**: Durante la partida se muestra un HUD en la parte superior con: puntaje acumulado, vidas restantes, barra de energía y tiempo transcurrido.
 * **RF-09**: El juego dispone de 2 a 3 diseños de escenarios (mapas) con distintas disposiciones de algas y rutas de animales marinos para evitar la memorización.
 * **RF-10**: Al finalizar la partida, el puntaje final se registra automáticamente en una base de datos SQLite.
