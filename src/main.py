@@ -2,9 +2,9 @@ import pygame
 import random
 
 from jugador import Jugador
-from obstaculo import Alga
-from enemigo import AnimalMarino
-from camara import Camara
+from obstaculo import Alga, ANCHO_HEBRA, SEPARACION_HEBRAS, VELOCIDAD_ALGA
+from enemigo import AnimalMarino, elegir_tipo
+from burbuja import Burbuja
 
 from hud import inicializar_fuente, dibujar_hud
 
@@ -27,11 +27,23 @@ ANCHO, ALTO = 1280, 720
 
 # Medidas del escenario (escala para la pantalla de 1280x720)
 ALTURA_HUECO = 230   # alto del hueco entre el alga de arriba y la de abajo
-ANCHO_ALGA = 90
 MARGEN_HUECO = 80    # distancia mínima del hueco al techo y al piso
 
+# Matas de algas (como en un acuario): grupos de 1 a 3 hebras juntas,
+# con espacio libre entre una mata y la siguiente
+MAX_HEBRAS = 3
+ESPACIO_LIBRE_ENTRE_ALGAS = (300, 550)   # px libres entre una mata y la siguiente
+MAX_CAMBIO_HUECO = 200                   # px máx. de diferencia entre dos huecos seguidos
+
+# Cada cuántos segundos aparece un animal marino (mínimo, máximo)
+INTERVALO_ENEMIGOS = (2.5, 4.0)
+
+# Burbujas de ambiente: cada cuántos segundos sale una nueva (mínimo, máximo)
+INTERVALO_BURBUJAS = (0.25, 0.7)
+BURBUJAS_INICIALES = 18   # ya hay burbujas en pantalla al empezar
+
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Flappy Ocean - Modo Scroll")
+pygame.display.set_caption("Flappy Ocean")
 
 clock = pygame.time.Clock()
 
@@ -51,21 +63,13 @@ reproducir_musica("musica_fondo.ogg", volumen=0.3)
 
 
 # -----------------------------------------
-# MUNDO Y CÁMARA
-# -----------------------------------------
-
-ANCHO_MUNDO = 3000
-
-camara = Camara(ANCHO_MUNDO, ALTO, ANCHO, ALTO)
-
-
-# -----------------------------------------
 # GRUPOS DE SPRITES
 # -----------------------------------------
 
 todos_los_sprites = pygame.sprite.Group()
 obstaculos = pygame.sprite.Group()
 enemigos = pygame.sprite.Group()
+burbujas = pygame.sprite.Group()   # decoración: no chocan con nada
 
 
 # -----------------------------------------
@@ -95,19 +99,101 @@ running = True
 
 
 # -----------------------------------------
-# GENERACIÓN DE ALGAS
+# GENERACIÓN DE ALGAS Y ENEMIGOS
+# -----------------------------------------
+#
+# Los obstáculos nacen fuera de la pantalla, a la derecha, y se mueven hacia
+# la izquierda. Cuándo aparece el siguiente se decide con un temporizador
+# (y no con la posición del pez, que no se mueve en horizontal).
+
+def generar_mata_de_algas(x, centro_anterior):
+    """Crea el par de algas (arriba y abajo) con un hueco en el medio.
+
+    Cada alga es una mata de 1 a MAX_HEBRAS hebras juntas, verdes y violetas.
+    Devuelve (ancho de la mata, centro del hueco).
+    """
+
+    hebras = random.randint(1, MAX_HEBRAS)
+    ancho = ANCHO_HEBRA + (hebras - 1) * SEPARACION_HEBRAS
+
+    # El hueco cambia de altura de a poco para que siempre se pueda llegar
+    minimo = MARGEN_HUECO + ALTURA_HUECO // 2
+    maximo = ALTO - MARGEN_HUECO - ALTURA_HUECO // 2
+    centro = centro_anterior + random.randint(-MAX_CAMBIO_HUECO, MAX_CAMBIO_HUECO)
+    centro = max(minimo, min(maximo, centro))
+
+    borde_superior = centro - ALTURA_HUECO // 2
+    borde_inferior = centro + ALTURA_HUECO // 2
+
+    alga_sup = Alga(x, borde_superior, ancho, borde_superior, es_superior=True)
+    alga_inf = Alga(x, borde_inferior, ancho, ALTO - borde_inferior, es_superior=False)
+
+    todos_los_sprites.add(alga_sup, alga_inf)
+    obstaculos.add(alga_sup, alga_inf)
+
+    return ancho, centro
+
+
+def segundos_hasta_la_proxima_mata(ancho_mata):
+    """Tiempo que tarda una mata (que nace en el borde derecho) en dejar
+    el espacio libre para que nazca la siguiente."""
+
+    espacio_libre = random.randint(*ESPACIO_LIBRE_ENTRE_ALGAS)
+
+    return (ancho_mata + espacio_libre) / VELOCIDAD_ALGA
+
+
+# Primera mata: ya visible al empezar, a 700 px del borde izquierdo
+X_PRIMERA_MATA = 700
+
+ancho_mata, centro_hueco = generar_mata_de_algas(X_PRIMERA_MATA, ALTO // 2)
+
+# Como no nació en el borde derecho sino más adelante, ya recorrió parte del camino
+adelanto = (ANCHO - X_PRIMERA_MATA) / VELOCIDAD_ALGA
+temporizador_alga = max(0.0, segundos_hasta_la_proxima_mata(ancho_mata) - adelanto)
+
+# Primer animal marino: a los pocos segundos de empezar
+temporizador_enemigo = random.uniform(2.0, 4.0)
+
+
+# -----------------------------------------
+# BURBUJAS
 # -----------------------------------------
 
-posicion_siguiente_alga = 600
-distancia_entre_algas = 450
+def generar_burbuja_del_fondo(y=None):
+    """Crea una burbuja que sube desde el piso (o desde la altura y indicada)."""
+
+    if y is None:
+        y = ALTO + 20
+
+    burbujas.add(Burbuja(random.randint(0, ANCHO), y))
 
 
-# -----------------------------------------
-# GENERACIÓN DE ENEMIGOS
-# -----------------------------------------
+def soltar_burbujas_del_pez():
+    """Un par de burbujas chicas salen de la boca del pez al nadar."""
 
-posicion_siguiente_enemigo = 400  # Ajustado para que aparezcan más cerca del inicio
-distancia_entre_enemigos = 600
+    for _ in range(2):
+        burbujas.add(
+            Burbuja(
+                jugador.rect.right - 8 + random.randint(-4, 4),
+                jugador.rect.centery - 6 + random.randint(-6, 6),
+                radio=random.randint(3, 6)
+            )
+        )
+
+
+def hacer_nadar_al_pez():
+    """El pez salta hacia arriba: impulso, sonido y burbujas."""
+
+    jugador.saltar()
+    reproducir_efecto(sonido_salto)
+    soltar_burbujas_del_pez()
+
+
+for _ in range(BURBUJAS_INICIALES):
+    generar_burbuja_del_fondo(random.randint(0, ALTO))
+
+temporizador_burbuja = random.uniform(*INTERVALO_BURBUJAS)
 
 
 # -----------------------------------------
@@ -146,74 +232,49 @@ while running:
 
             if event.key == pygame.K_SPACE:
 
-                jugador.saltar()
-                reproducir_efecto(sonido_salto)
+                hacer_nadar_al_pez()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
 
             if event.button == 1:
 
-                jugador.saltar()
-                reproducir_efecto(sonido_salto)
+                hacer_nadar_al_pez()
 
 
     # -------------------------------------
     # GENERACIÓN DE ALGAS
     # -------------------------------------
 
-    if (
-        jugador.rect.x + ANCHO > posicion_siguiente_alga
-        and posicion_siguiente_alga < ANCHO_MUNDO - 200
-    ):
+    temporizador_alga -= dt
 
-        # y_hueco es el borde de arriba del hueco; se deja un margen
-        # para que quede siempre dentro de la pantalla
-        y_hueco = random.randint(MARGEN_HUECO, ALTO - ALTURA_HUECO - MARGEN_HUECO)
+    if temporizador_alga <= 0:
 
-        # Alga superior
-        alga_sup = Alga(
-            posicion_siguiente_alga,
-            y_hueco,
-            ANCHO_ALGA,
-            y_hueco,
-            es_superior=True
-        )
+        # Nace justo fuera de la pantalla, a la derecha
+        ancho_mata, centro_hueco = generar_mata_de_algas(ANCHO, centro_hueco)
 
-        # Alga inferior
-        altura_inf = ALTO - (y_hueco + ALTURA_HUECO)
-
-        alga_inf = Alga(
-            posicion_siguiente_alga,
-            y_hueco + ALTURA_HUECO,
-            ANCHO_ALGA,
-            altura_inf,
-            es_superior=False
-        )
-
-        todos_los_sprites.add(alga_sup, alga_inf)
-        obstaculos.add(alga_sup, alga_inf)
-
-        posicion_siguiente_alga += distancia_entre_algas
+        temporizador_alga += segundos_hasta_la_proxima_mata(ancho_mata)
 
 
     # -------------------------------------
     # GENERACIÓN DE ANIMALES MARINOS
     # -------------------------------------
 
-    if (
-        jugador.rect.x + ANCHO > posicion_siguiente_enemigo
-        and posicion_siguiente_enemigo < ANCHO_MUNDO - 200
-    ):
+    temporizador_enemigo -= dt
 
+    if temporizador_enemigo <= 0:
+
+        # Pez, pulpo o tiburón (cada uno se mueve distinto, ver enemigo.py)
+        # AnimalMarino suma entre 50 y 200 px a la x que recibe
         animal = AnimalMarino(
-            posicion_siguiente_enemigo,
-            ALTO
+            ANCHO,
+            ALTO,
+            elegir_tipo()
         )
 
         todos_los_sprites.add(animal)
         enemigos.add(animal)
 
-        posicion_siguiente_enemigo += distancia_entre_enemigos
+        temporizador_enemigo = random.uniform(*INTERVALO_ENEMIGOS)
 
 
     # -------------------------------------
@@ -222,22 +283,16 @@ while running:
 
     todos_los_sprites.update(dt)
 
+    # Burbujas de ambiente
+    burbujas.update(dt)
 
-    # -------------------------------------
-    # ELIMINAR ENEMIGOS QUE QUEDARON ATRÁS
-    # -------------------------------------
+    temporizador_burbuja -= dt
 
-    for animal in enemigos.copy():
+    if temporizador_burbuja <= 0:
 
-        if animal.rect.right < jugador.rect.left - 200:
-            animal.kill()
+        generar_burbuja_del_fondo()
 
-
-    # -------------------------------------
-    # ACTUALIZACIÓN DE CÁMARA
-    # -------------------------------------
-
-    camara.seguir(jugador)
+        temporizador_burbuja = random.uniform(*INTERVALO_BURBUJAS)
 
 
     # -------------------------------------
@@ -294,10 +349,6 @@ while running:
             # Reaparecer al jugador
             jugador.reaparecer()
 
-            # Reiniciar posiciones de spawn para que no queden adelantadas al reaparecer
-            posicion_siguiente_alga = 600
-            posicion_siguiente_enemigo = 400
-
             # Activar invulnerabilidad
             invulnerabilidad = DURACION_INVULNERABILIDAD
 
@@ -331,6 +382,9 @@ while running:
 
     pantalla.fill(color_fondo)
 
+    # Las burbujas van por detrás de todo lo demás
+    burbujas.draw(pantalla)
+
     for sprite in todos_los_sprites:
 
         # Efecto visual durante la invulnerabilidad
@@ -340,10 +394,7 @@ while running:
             if int(pygame.time.get_ticks() / 100) % 2 == 0:
                 continue
 
-        pantalla.blit(
-            sprite.image,
-            camara.aplicar(sprite.rect)
-        )
+        pantalla.blit(sprite.image, sprite.rect)
 
 
     # -------------------------------------
