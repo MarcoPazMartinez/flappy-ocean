@@ -3,8 +3,6 @@
 ## Descripción
 Este documento describe el flujo de pantallas y navegación del juego Flappy Diver (antes Flappy Ocean).
 
-> El diagrama visual de abajo corresponde al diseño original y todavía no está actualizado: usá las tablas de este documento, que describen cómo funciona el juego hoy.
-
 ## Pantallas del Juego
 
 | Pantalla | Descripción | Cómo se llega |
@@ -34,4 +32,27 @@ Este documento describe el flujo de pantallas y navegación del juego Flappy Div
 
 ## Diagrama Visual
 
-<img width="1290" height="260" alt="Diagrama sin título drawio (1)" src="https://github.com/user-attachments/assets/5051353e-137d-4c89-9711-0b7b429e9b09" />
+El diagrama está escrito en [Mermaid](https://mermaid.js.org/): GitHub lo dibuja directamente desde el texto, y para cambiarlo alcanza con editar este archivo.
+
+```mermaid
+flowchart TD
+    inicio(["Inicio del programa"]) --> portada["Portada<br/>Jugar - Ranking - Salir"]
+
+    portada -->|Jugar| partida["Partida<br/>2 minutos"]
+    portada -->|Ranking| ranking["Ranking Top 10"]
+    ranking -->|Volver| portada
+    portada -->|Salir| fin(["Cierre del programa"])
+
+    partida -->|"Llega a la meta"| ganaste["Cartel: GANASTE"]
+    partida -->|"Se queda sin vidas o energía"| gameover["Cartel: GAME OVER"]
+
+    ganaste --> entra{"¿Entra en el Top 10?"}
+    gameover --> entra
+
+    entra -->|"Sí"| nombre["Pedir el nombre"]
+    entra -->|No| resultados["Resultados<br/>puntaje y Top 10"]
+    nombre -->|"Guardar u Omitir"| resultados
+
+    resultados -->|"Volver al inicio"| portada
+    resultados -->|Salir| fin
+```

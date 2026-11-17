@@ -1,0 +1,2 @@
+# Dependencias del juego (probado con pygame 2.6.1 y pygame-ce 2.5.5)
+pygame>=2.1
