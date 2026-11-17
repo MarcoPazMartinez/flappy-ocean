@@ -34,6 +34,14 @@ def texto_con_borde(fuente, texto, color, color_borde, grosor=4):
     return superficie
 
 
+def crear_panel(tamano, color=(5, 25, 70, 215)):
+    """Un panel semitransparente con bordes redondeados y borde blanco."""
+    panel = pygame.Surface(tamano, pygame.SRCALPHA)
+    pygame.draw.rect(panel, color, panel.get_rect(), border_radius=20)
+    pygame.draw.rect(panel, (255, 255, 255), panel.get_rect(), 3, border_radius=20)
+    return panel
+
+
 class Boton:
     """Un botón rectangular con texto. Se resalta cuando está seleccionado."""
 
@@ -75,9 +83,9 @@ def procesar_evento(evento, botones, seleccionado):
                 return seleccionado, boton.accion
 
     elif evento.type == pygame.KEYDOWN:
-        if evento.key in (pygame.K_UP, pygame.K_w):
+        if evento.key in (pygame.K_UP, pygame.K_LEFT, pygame.K_w, pygame.K_a):
             seleccionado = (seleccionado - 1) % len(botones)
-        elif evento.key in (pygame.K_DOWN, pygame.K_s):
+        elif evento.key in (pygame.K_DOWN, pygame.K_RIGHT, pygame.K_s, pygame.K_d):
             seleccionado = (seleccionado + 1) % len(botones)
         elif evento.key in (pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_SPACE):
             return seleccionado, botones[seleccionado].accion
