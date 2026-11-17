@@ -3,7 +3,8 @@ import random
 
 from jugador import Jugador
 from obstaculo import Alga, ANCHO_HEBRA, SEPARACION_HEBRAS, VELOCIDAD_ALGA
-from enemigo import AnimalMarino
+from enemigo import AnimalMarino, elegir_tipo
+from burbuja import Burbuja
 
 from hud import inicializar_fuente, dibujar_hud
 
@@ -35,7 +36,11 @@ ESPACIO_LIBRE_ENTRE_ALGAS = (300, 550)   # px libres entre una mata y la siguien
 MAX_CAMBIO_HUECO = 200                   # px máx. de diferencia entre dos huecos seguidos
 
 # Cada cuántos segundos aparece un animal marino (mínimo, máximo)
-INTERVALO_ENEMIGOS = (3.0, 5.0)
+INTERVALO_ENEMIGOS = (2.5, 4.0)
+
+# Burbujas de ambiente: cada cuántos segundos sale una nueva (mínimo, máximo)
+INTERVALO_BURBUJAS = (0.25, 0.7)
+BURBUJAS_INICIALES = 18   # ya hay burbujas en pantalla al empezar
 
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Flappy Ocean")
@@ -64,6 +69,7 @@ reproducir_musica("musica_fondo.ogg", volumen=0.3)
 todos_los_sprites = pygame.sprite.Group()
 obstaculos = pygame.sprite.Group()
 enemigos = pygame.sprite.Group()
+burbujas = pygame.sprite.Group()   # decoración: no chocan con nada
 
 
 # -----------------------------------------
@@ -151,6 +157,46 @@ temporizador_enemigo = random.uniform(2.0, 4.0)
 
 
 # -----------------------------------------
+# BURBUJAS
+# -----------------------------------------
+
+def generar_burbuja_del_fondo(y=None):
+    """Crea una burbuja que sube desde el piso (o desde la altura y indicada)."""
+
+    if y is None:
+        y = ALTO + 20
+
+    burbujas.add(Burbuja(random.randint(0, ANCHO), y))
+
+
+def soltar_burbujas_del_pez():
+    """Un par de burbujas chicas salen de la boca del pez al nadar."""
+
+    for _ in range(2):
+        burbujas.add(
+            Burbuja(
+                jugador.rect.right - 8 + random.randint(-4, 4),
+                jugador.rect.centery - 6 + random.randint(-6, 6),
+                radio=random.randint(3, 6)
+            )
+        )
+
+
+def hacer_nadar_al_pez():
+    """El pez salta hacia arriba: impulso, sonido y burbujas."""
+
+    jugador.saltar()
+    reproducir_efecto(sonido_salto)
+    soltar_burbujas_del_pez()
+
+
+for _ in range(BURBUJAS_INICIALES):
+    generar_burbuja_del_fondo(random.randint(0, ALTO))
+
+temporizador_burbuja = random.uniform(*INTERVALO_BURBUJAS)
+
+
+# -----------------------------------------
 # BUCLE PRINCIPAL
 # -----------------------------------------
 
@@ -186,15 +232,13 @@ while running:
 
             if event.key == pygame.K_SPACE:
 
-                jugador.saltar()
-                reproducir_efecto(sonido_salto)
+                hacer_nadar_al_pez()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
 
             if event.button == 1:
 
-                jugador.saltar()
-                reproducir_efecto(sonido_salto)
+                hacer_nadar_al_pez()
 
 
     # -------------------------------------
@@ -219,10 +263,12 @@ while running:
 
     if temporizador_enemigo <= 0:
 
+        # Pez, pulpo o tiburón (cada uno se mueve distinto, ver enemigo.py)
         # AnimalMarino suma entre 50 y 200 px a la x que recibe
         animal = AnimalMarino(
             ANCHO,
-            ALTO
+            ALTO,
+            elegir_tipo()
         )
 
         todos_los_sprites.add(animal)
@@ -236,6 +282,17 @@ while running:
     # -------------------------------------
 
     todos_los_sprites.update(dt)
+
+    # Burbujas de ambiente
+    burbujas.update(dt)
+
+    temporizador_burbuja -= dt
+
+    if temporizador_burbuja <= 0:
+
+        generar_burbuja_del_fondo()
+
+        temporizador_burbuja = random.uniform(*INTERVALO_BURBUJAS)
 
 
     # -------------------------------------
@@ -324,6 +381,9 @@ while running:
     # -------------------------------------
 
     pantalla.fill(color_fondo)
+
+    # Las burbujas van por detrás de todo lo demás
+    burbujas.draw(pantalla)
 
     for sprite in todos_los_sprites:
 
