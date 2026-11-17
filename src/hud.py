@@ -20,8 +20,8 @@ def dibujar_hud(pantalla, fuente, puntaje, vidas, tiempo_restante):
 
     #Vidas arriba a la derecha[cite: 2, 4]
     txt_vidas = fuente.render(f"Vidas: {vidas}", True, (255, 120, 120))
-    pantalla.blit(txt_vidas, (ancho_pantalla - 130, 10))
+    pantalla.blit(txt_vidas, txt_vidas.get_rect(topright=(ancho_pantalla - 20, 10)))
 
     #Tiempo en el centro[cite: 2, 4]
     txt_tiempo = fuente.render(f"Tiempo: {tiempo_restante}s", True, (255, 255, 120))
-    pantalla.blit(txt_tiempo, (ancho_pantalla // 2 - 60, 10))
+    pantalla.blit(txt_tiempo, txt_tiempo.get_rect(midtop=(ancho_pantalla // 2, 10)))

@@ -2,26 +2,34 @@ import pygame
 import random
 import math
 
+from recursos import cargar_imagen
+
 
 class AnimalMarino(pygame.sprite.Sprite):
 
     def __init__(self, x_mundo, alto_pantalla):
         super().__init__()
 
-        self.image = pygame.Surface((40, 30))
-        self.image.fill((255, 100, 100))
+        imagen = cargar_imagen("enemigo.png", (72, 72), (255, 100, 100))
+
+        # La imagen mira hacia la derecha, pero el animal nada hacia la
+        # izquierda: se da vuelta (espejo horizontal)
+        self.image = pygame.transform.flip(imagen, True, False)
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
 
         # Posición dentro del mundo
         self.rect.x = x_mundo + random.randint(50, 200)
-        self.rect.y = random.randint(50, alto_pantalla - 100)
+        # Margen arriba y abajo para que la onda (hasta 90 px) y el alto
+        # del sprite (72 px) no se salgan de la pantalla
+        self.rect.y = random.randint(120, alto_pantalla - 200)
 
         # Movimiento horizontal
         self.velocidad_x = random.randint(180, 280)
 
         # Movimiento ondulatorio
-        self.amplitud_movimiento = random.randint(20, 50)
+        self.amplitud_movimiento = random.randint(30, 90)
         self.frecuencia_y = random.randint(2, 5)
 
         self.tiempo_acumulado = 0

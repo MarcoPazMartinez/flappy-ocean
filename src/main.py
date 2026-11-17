@@ -23,7 +23,12 @@ from audio import (
 
 pygame.init()
 
-ANCHO, ALTO = 800, 600
+ANCHO, ALTO = 1280, 720
+
+# Medidas del escenario (escala para la pantalla de 1280x720)
+ALTURA_HUECO = 230   # alto del hueco entre el alga de arriba y la de abajo
+ANCHO_ALGA = 90
+MARGEN_HUECO = 80    # distancia mínima del hueco al techo y al piso
 
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Flappy Ocean - Modo Scroll")
@@ -67,7 +72,7 @@ enemigos = pygame.sprite.Group()
 # JUGADOR
 # -----------------------------------------
 
-jugador = Jugador(150, 275)
+jugador = Jugador(150, ALTO // 2)
 
 todos_los_sprites.add(jugador)
 
@@ -94,7 +99,7 @@ running = True
 # -----------------------------------------
 
 posicion_siguiente_alga = 600
-distancia_entre_algas = 350
+distancia_entre_algas = 450
 
 
 # -----------------------------------------
@@ -161,28 +166,26 @@ while running:
         and posicion_siguiente_alga < ANCHO_MUNDO - 200
     ):
 
-        altura_hueco = 160
-
-        y_hueco = random.randint(100, ALTO - 260)
-
-        anchos_alga = 70
+        # y_hueco es el borde de arriba del hueco; se deja un margen
+        # para que quede siempre dentro de la pantalla
+        y_hueco = random.randint(MARGEN_HUECO, ALTO - ALTURA_HUECO - MARGEN_HUECO)
 
         # Alga superior
         alga_sup = Alga(
             posicion_siguiente_alga,
             y_hueco,
-            anchos_alga,
+            ANCHO_ALGA,
             y_hueco,
             es_superior=True
         )
 
         # Alga inferior
-        altura_inf = ALTO - (y_hueco + altura_hueco)
+        altura_inf = ALTO - (y_hueco + ALTURA_HUECO)
 
         alga_inf = Alga(
             posicion_siguiente_alga,
-            y_hueco + altura_hueco,
-            anchos_alga,
+            y_hueco + ALTURA_HUECO,
+            ANCHO_ALGA,
             altura_inf,
             es_superior=False
         )
@@ -246,12 +249,17 @@ while running:
         colision = None
 
         # Comprobar colisión con algas
-        if pygame.sprite.spritecollideany(jugador, obstaculos):
+        # (collide_mask: solo cuentan los píxeles dibujados, no el rectángulo)
+        if pygame.sprite.spritecollideany(
+            jugador, obstaculos, pygame.sprite.collide_mask
+        ):
 
             colision = "alga"
 
         # Comprobar colisión con enemigos
-        elif pygame.sprite.spritecollideany(jugador, enemigos):
+        elif pygame.sprite.spritecollideany(
+            jugador, enemigos, pygame.sprite.collide_mask
+        ):
 
             colision = "enemigo"
 
@@ -276,7 +284,8 @@ while running:
 
                 enemigo_colisionado = pygame.sprite.spritecollideany(
                     jugador,
-                    enemigos
+                    enemigos,
+                    pygame.sprite.collide_mask
                 )
 
                 if enemigo_colisionado:
