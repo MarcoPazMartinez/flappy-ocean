@@ -49,3 +49,7 @@ class AnimalMarino(pygame.sprite.Sprite):
         self.rect.y = int(
             self.posicion_inicial_y + desplazamiento_y
         )
+
+        # Eliminar cuando sale de la pantalla por la izquierda
+        if self.rect.right < 0:
+            self.kill()

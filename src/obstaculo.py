@@ -1,20 +1,62 @@
+import random
 
 import pygame
 
 from recursos import cargar_imagen
 
-ALTO_SEGMENTO = 120   # alto de assets/images/alga.png
+ALTO_SEGMENTO = 120       # alto de las imágenes de alga
+ANCHO_HEBRA = 90          # ancho de una hebra de alga
+SEPARACION_HEBRAS = 70    # distancia entre hebras de una misma mata (las hojas se superponen)
+VELOCIDAD_ALGA = 250      # px/s hacia la izquierda
+
+# Imágenes de alga y su color de respaldo (si falta el archivo)
+ALGA_VERDE = "alga.png"
+ALGA_VIOLETA = "alga_violeta.png"
+COLOR_RESPALDO = {
+    ALGA_VERDE: (46, 139, 87),
+    ALGA_VIOLETA: (130, 70, 180),
+}
+
+
+def elegir_colores(cantidad):
+    """Elige el color de cada hebra de una mata.
+
+    Con 2 o más hebras siempre aparecen verde y violeta mezclados.
+    """
+    if cantidad == 1:
+        return [random.choice((ALGA_VERDE, ALGA_VIOLETA))]
+
+    colores = [ALGA_VERDE, ALGA_VIOLETA]
+    colores += [random.choice((ALGA_VERDE, ALGA_VIOLETA)) for _ in range(cantidad - 2)]
+    random.shuffle(colores)
+    return colores
 
 
 def construir_imagen_alga(ancho, alto, es_superior):
-    """Arma un alga del alto pedido repitiendo (en mosaico) un segmento vertical."""
+    """Arma una mata de algas del ancho y alto pedidos.
 
-    segmento = cargar_imagen("alga.png", (ancho, ALTO_SEGMENTO), (46, 139, 87))
+    - Cada hebra repite (en mosaico) un segmento vertical hasta llegar al alto.
+    - Las hebras van una al lado de la otra, verdes y violetas mezcladas.
+    - Cada hebra empieza en un punto distinto del segmento, para que las
+      hojas no queden alineadas.
+    """
+    cantidad = max(1, round((ancho - ANCHO_HEBRA) / SEPARACION_HEBRAS) + 1)
 
     imagen = pygame.Surface((ancho, alto), pygame.SRCALPHA)
 
-    for y in range(0, alto, ALTO_SEGMENTO):
-        imagen.blit(segmento, (0, y))
+    for numero, nombre in enumerate(elegir_colores(cantidad)):
+
+        segmento = cargar_imagen(
+            nombre,
+            (ANCHO_HEBRA, ALTO_SEGMENTO),
+            COLOR_RESPALDO[nombre]
+        )
+
+        x = numero * SEPARACION_HEBRAS
+        desfase = random.randint(0, ALTO_SEGMENTO - 1)
+
+        for y in range(-desfase, alto, ALTO_SEGMENTO):
+            imagen.blit(segmento, (x, y))
 
     if es_superior:
         # El alga de arriba cuelga del techo: se da vuelta (espejo vertical)
@@ -42,7 +84,7 @@ class Alga(pygame.sprite.Sprite):
 
             self.rect.topleft = (x, y)
 
-        self.velocidad_x = 250
+        self.velocidad_x = VELOCIDAD_ALGA
 
 
     def update(self, dt):
