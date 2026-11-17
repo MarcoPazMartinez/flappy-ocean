@@ -10,6 +10,8 @@ from recursos import cargar_imagen
 #   - amplitud:  cuánto sube y baja en su onda, en px (0 = avanza en línea recta)
 #   - frecuencia: qué tan rápido sube y baja
 #   - peso: qué tan seguido aparece (mayor número = más seguido)
+#   - puntos: lo que suma pasar de largo sin que te toque (cuanto más difícil de
+#     esquivar, más puntos)
 TIPOS = {
     # Pez: velocidad media y ondula
     "pez": {
@@ -20,6 +22,7 @@ TIPOS = {
         "amplitud": (30, 90),
         "frecuencia": (2.0, 5.0),
         "peso": 5,
+        "puntos": 5,
     },
     # Pulpo: lento, pero sube y baja mucho y tapa buena parte de la pantalla
     "pulpo": {
@@ -30,6 +33,7 @@ TIPOS = {
         "amplitud": (110, 170),
         "frecuencia": (1.0, 1.8),
         "peso": 3,
+        "puntos": 15,
     },
     # Tiburón: grande y muy rápido, en línea recta
     "tiburon": {
@@ -40,6 +44,7 @@ TIPOS = {
         "amplitud": (0, 0),
         "frecuencia": (0.0, 0.0),
         "peso": 2,
+        "puntos": 25,
     },
 }
 
@@ -60,6 +65,10 @@ class AnimalMarino(pygame.sprite.Sprite):
 
         datos = TIPOS[tipo]
         self.tipo = tipo
+
+        # Puntos que da al esquivarlo (si el pez lo toca, no suma nada)
+        self.puntos = datos["puntos"]
+        self.esquivado = False
 
         imagen = cargar_imagen(datos["imagen"], datos["tamano"], datos["color"])
 

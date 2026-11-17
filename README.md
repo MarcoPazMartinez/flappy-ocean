@@ -1,7 +1,7 @@
 # 🐟 Flappy Ocean
 
 ## Descripción
-**Flappy Ocean** es un juego 2D desarrollado en Python utilizando Pygame. El jugador controla a un pez que debe navegar a través de las profundidades marinas evitando obstáculos colisionables (algas) y esquivando animales marinos con trayectorias fijas. El juego incluye un sistema de vidas, barra de energía, escenarios dinámicos y un límite de tiempo de 1 minuto por sesión.
+**Flappy Ocean** es un juego 2D desarrollado en Python utilizando Pygame. El jugador controla a un pez que debe navegar a través de las profundidades marinas evitando obstáculos colisionables (algas) y esquivando animales marinos con trayectorias fijas. El juego incluye un sistema de vidas, barra de energía, escenarios dinámicos y un límite de tiempo de 2 minutos por sesión.
 
 Proyecto desarrollado para la materia Software Factory II.
 
@@ -11,7 +11,7 @@ Proyecto desarrollado para la materia Software Factory II.
 3. Atraviesa las aberturas entre las algas de colores para sumar puntos.
 4. Evita los animales marinos; tocar uno reducirá tu **barra de energía**.
 5. Si chocas contra un alga, perderás una **vida** y retrocederás a una posición segura.
-6. Sobrevive el máximo tiempo posible antes de que se agote el tiempo (1 minuto).
+6. Sobrevive el máximo tiempo posible antes de que se agote el tiempo (2 minutos) y llegá a la meta.
 
 ## Funcionalidades
 - [x] Pantalla de inicio con menú y tutorial de controles

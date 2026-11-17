@@ -71,6 +71,14 @@ class Alga(pygame.sprite.Sprite):
 
         super().__init__()
 
+        # Cada mata es un par (arriba y abajo): para sumar puntos se cuenta
+        # solo el alga de arriba, y solo una vez
+        self.es_superior = es_superior
+        self.superada = False
+
+        # Altura del centro del hueco de la mata (la completa quien la crea)
+        self.centro_hueco = None
+
         self.image = construir_imagen_alga(ancho, alto, es_superior)
         self.mask = pygame.mask.from_surface(self.image)
 
