@@ -65,6 +65,10 @@ BURBUJAS_INICIALES = 18
 # Antes de la meta se dejan de generar obstáculos, para que el final quede despejado
 SEGUNDOS_DESPEJADOS = 1.5
 
+# Cuando el tubo de la meta está a esta distancia del pez (px), el pez se acomoda
+# solo a su altura y no puede chocar: así siempre entra al tubo
+DISTANCIA_PILOTO = 450
+
 # Avisos de puntos ("+10") que suben desde el pez
 DURACION_AVISO = 0.9
 COLOR_AVISO_ALGA = (255, 255, 255)
@@ -101,6 +105,7 @@ class Partida:
         self.tiempo = 0.0
         self.invulnerable = 0.0
         self.estado_final = None          # "victoria" o "derrota" cuando termina
+        self.piloto_automatico = False    # el pez entra solo al tubo de la meta
 
         # Avisos de puntos: [superficie, x, y, segundos que le quedan]
         self.avisos = []
@@ -161,6 +166,10 @@ class Partida:
         alga_sup = Alga(x, borde_superior, ancho, borde_superior, es_superior=True)
         alga_inf = Alga(x, borde_inferior, ancho, self.alto - borde_inferior, es_superior=False)
 
+        # Cada alga sabe dónde está el centro de su hueco (se usa al reaparecer)
+        alga_sup.centro_hueco = centro
+        alga_inf.centro_hueco = centro
+
         self.todos.add(alga_sup, alga_inf)
         self.obstaculos.add(alga_sup, alga_inf)
 
@@ -212,6 +221,10 @@ class Partida:
 
     def nadar(self):
         """El pez salta hacia arriba: impulso, sonido y burbujas."""
+
+        # Cuando va hacia el tubo de la meta, maneja solo
+        if self.piloto_automatico:
+            return
 
         self.jugador.saltar()
         reproducir_efecto(self.sonidos["salto"])
@@ -280,7 +293,8 @@ class Partida:
 
     def procesar_colisiones(self):
 
-        if self.invulnerable > 0:
+        # Mientras entra al tubo de la meta no puede chocar
+        if self.invulnerable > 0 or self.piloto_automatico:
             return
 
         # collide_mask: solo cuentan los píxeles dibujados, no el rectángulo
@@ -310,8 +324,9 @@ class Partida:
         if animal:
             animal.kill()
 
-        # Reaparecer al jugador
-        self.jugador.reaparecer()
+        # El pez sigue en su lugar (nunca retrocede). Si chocó con un alga, se lo
+        # acomoda en el centro del hueco para que el mismo alga no lo vuelva a tocar
+        self.jugador.reaparecer(alga.centro_hueco if alga else None)
 
         # Activar invulnerabilidad
         self.invulnerable = DURACION_INVULNERABILIDAD
@@ -343,6 +358,15 @@ class Partida:
         if self.meta is None and restante <= self.segundos_meta:
             self.meta = Meta(self.ancho, self.alto)
             self.todos.add(self.meta)
+
+        # Cuando el tubo se acerca, el pez se acomoda solo a su altura
+        if (
+            self.meta is not None
+            and not self.piloto_automatico
+            and self.meta.rect.left <= self.jugador.rect.right + DISTANCIA_PILOTO
+        ):
+            self.piloto_automatico = True
+            self.jugador.activar_piloto(self.meta.centro_tubo_y)
 
         # Hasta poco antes de la meta se siguen generando algas y animales
         if restante > self.segundos_meta + SEGUNDOS_DESPEJADOS:

@@ -76,6 +76,9 @@ class Alga(pygame.sprite.Sprite):
         self.es_superior = es_superior
         self.superada = False
 
+        # Altura del centro del hueco de la mata (la completa quien la crea)
+        self.centro_hueco = None
+
         self.image = construir_imagen_alga(ancho, alto, es_superior)
         self.mask = pygame.mask.from_surface(self.image)
 
