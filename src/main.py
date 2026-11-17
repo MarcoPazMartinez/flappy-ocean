@@ -5,6 +5,9 @@ from jugador import Jugador
 from obstaculo import Alga, ANCHO_HEBRA, SEPARACION_HEBRAS, VELOCIDAD_ALGA
 from enemigo import AnimalMarino, elegir_tipo
 from burbuja import Burbuja
+from db import init_db
+from interfaz import TITULO_JUEGO
+from menu import mostrar_menu_principal
 
 from hud import inicializar_fuente, dibujar_hud
 
@@ -43,7 +46,7 @@ INTERVALO_BURBUJAS = (0.25, 0.7)
 BURBUJAS_INICIALES = 18   # ya hay burbujas en pantalla al empezar
 
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Flappy Ocean")
+pygame.display.set_caption(TITULO_JUEGO)
 
 clock = pygame.time.Clock()
 
@@ -194,6 +197,18 @@ for _ in range(BURBUJAS_INICIALES):
     generar_burbuja_del_fondo(random.randint(0, ALTO))
 
 temporizador_burbuja = random.uniform(*INTERVALO_BURBUJAS)
+
+
+# -----------------------------------------
+# PORTADA (Jugar / Ranking / Salir)
+# -----------------------------------------
+
+# Crea la base de datos del ranking si todavía no existe
+init_db()
+
+if mostrar_menu_principal(pantalla, clock) == "salir":
+
+    running = False
 
 
 # -----------------------------------------

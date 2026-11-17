@@ -14,6 +14,7 @@ env/
 
 # Base de datos local temporal (opcional si no querés subir la DB de pruebas)
 *.db-journal
+*.db
 
 # Archivos del sistema operativo
 .DS_Store
