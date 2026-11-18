@@ -7,12 +7,11 @@ import os
 import sqlite3
 from contextlib import contextmanager
 
-# La base vive en database/ranking.db, sin importar desde dónde se ejecute el juego
-RUTA_DB = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "database",
-    "ranking.db",
-)
+from rutas import ruta_dato
+
+# La base vive en database/ranking.db, sin importar desde dónde se ejecute el juego.
+# Dentro del .exe queda al lado del ejecutable (ver rutas.py).
+RUTA_DB = ruta_dato("database", "ranking.db")
 
 LIMITE_RANKING = 10          # cuántos puntajes se conservan
 LARGO_MAXIMO_NOMBRE = 10
