@@ -3,13 +3,16 @@ import os
 
 import pygame
 
-RUTA_IMAGENES = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "assets",
-    "images",
-)
+from rutas import ruta_recurso
+
+RUTA_IMAGENES = ruta_recurso("assets", "images")
 
 _cache = {}
+
+# Nombres de las imágenes que no se pudieron cargar y se reemplazaron por un color.
+# El juego sigue andando igual, pero la verificación (`main.py --verificar`) lo usa
+# para avisar que falta un archivo.
+imagenes_faltantes = []
 
 
 def cargar_imagen(nombre, tamano, color_respaldo):
@@ -28,6 +31,7 @@ def cargar_imagen(nombre, tamano, color_respaldo):
         imagen = pygame.transform.smoothscale(imagen, tamano)
     except (pygame.error, FileNotFoundError):
         print(f"Aviso: no se pudo cargar '{nombre}', se usa un color de respaldo.")
+        imagenes_faltantes.append(nombre)
         imagen = pygame.Surface(tamano, pygame.SRCALPHA)
         imagen.fill(color_respaldo)
 
@@ -62,6 +66,7 @@ def cargar_fondo(nombre, tamano, color_respaldo):
         imagen = imagen.subsurface(recorte).copy()
     except (pygame.error, FileNotFoundError):
         print(f"Aviso: no se pudo cargar '{nombre}', se usa un color de respaldo.")
+        imagenes_faltantes.append(nombre)
         imagen = pygame.Surface(tamano)
         imagen.fill(color_respaldo)
 

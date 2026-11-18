@@ -19,3 +19,8 @@ env/
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+# Generacion del ejecutable
+build/
+dist/
+.venv-exe/
+verificacion.txt

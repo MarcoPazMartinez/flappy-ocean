@@ -2,6 +2,11 @@
 
 ![Portada del juego](docs/capturas/portada.jpg)
 
+## Descargar el juego (Windows)
+**[⬇️ Descargar FlappyDiver.exe](https://github.com/MarcoPazMartinez/flappy-ocean/releases/latest/download/FlappyDiver.exe)** (última versión, también en la sección [Releases](https://github.com/MarcoPazMartinez/flappy-ocean/releases)).
+
+No necesita instalar Python: se descarga y se abre con doble clic. Si Windows muestra "Windows protegió su PC", elegí *Más información → Ejecutar de todas formas*. El ranking se guarda en la carpeta `database` junto al `.exe`.
+
 ## Descripción
 **Flappy Diver** (repositorio `flappy-ocean`) es un juego 2D desarrollado en Python con Pygame, ambientado en un acuario. El jugador controla a un pez que nada entre matas de algas violetas y verdes, esquiva peces, pulpos y tiburones, suma puntos y trata de llegar en **2 minutos** a la meta: un tubo de cristal al que el pez entra nadando. Los mejores puntajes quedan guardados en un **ranking Top 10** con SQLite.
 
@@ -98,12 +103,17 @@ Los puntajes se guardan en `database/ranking.db` (SQLite). La base se crea sola 
 
 Si la base de datos falla, el juego sigue funcionando y avisa que no se pudo guardar el puntaje.
 
+## Ejecutable para Windows (.exe)
+El juego se puede empaquetar en un único `FlappyDiver.exe` que no necesita Python. Se genera con GitHub Actions (pestaña **Actions → Generar FlappyDiver.exe → Run workflow**) o con `construir_exe.bat` en una PC con Windows. El ranking se guarda en `database/` junto al `.exe`. Detalles y avisos de SmartScreen en [docs/generar_exe.md](docs/generar_exe.md).
+
+`FlappyDiver.exe --verificar` (o `python src/main.py --verificar`) comprueba imágenes, sonidos, una partida simulada y la base de datos.
+
 ## Estructura del proyecto
 ```text
 flappy-ocean/
 ├── assets/
 │   ├── images/          # portada, jugador, enemigo, pulpo, tiburon, alga, alga_violeta (.png)
-│   └── sounds/          # salto.ogg, colision.ogg, perder.ogg, musica_fondo.ogg
+│   └── sounds/          # salto.ogg, colision.wav, perder.ogg, musica_fondo.ogg
 ├── database/            # ranking.db (se crea sola)
 ├── docs/
 │   ├── capturas/        # imágenes de este README
@@ -126,6 +136,8 @@ flappy-ocean/
 │   ├── recursos.py        # carga de imágenes
 │   ├── audio.py           # música y efectos (el juego sigue si no hay audio)
 │   └── db.py              # ranking en SQLite
+├── FlappyDiver.spec     # receta de PyInstaller
+├── construir_exe.bat    # genera el .exe en Windows
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -134,6 +146,7 @@ flappy-ocean/
 ## Documentación
 - [Requerimientos](docs/requerimientos.md)
 - [Diagrama de flujo de pantallas](docs/diagrama_flujo.md)
+- [Generar y usar el .exe](docs/generar_exe.md)
 
 ## Tecnologías
 - Python 3

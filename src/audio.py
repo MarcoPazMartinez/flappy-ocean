@@ -2,12 +2,10 @@ import os
 
 import pygame
 
+from rutas import ruta_recurso
 
-RUTA_SONIDOS = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "assets",
-    "sounds"
-)
+
+RUTA_SONIDOS = ruta_recurso("assets", "sounds")
 
 
 # Si la computadora no tiene audio (o está ocupado), el juego sigue sin sonido
