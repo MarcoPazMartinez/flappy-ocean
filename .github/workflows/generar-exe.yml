@@ -4,7 +4,6 @@ on:
   workflow_dispatch:          # boton "Run workflow" en la pestana Actions
   push:
     tags: ["v*"]              # al crear una version (v1.0, v1.1...) tambien se publica
-    branches: ["docente/ejecutable-windows"]   # temporal, para probar antes de fusionar
 
 permissions:
   contents: write             # necesario para adjuntar el .exe a un Release

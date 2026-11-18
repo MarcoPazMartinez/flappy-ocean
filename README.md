@@ -2,6 +2,11 @@
 
 ![Portada del juego](docs/capturas/portada.jpg)
 
+## Descargar el juego (Windows)
+**[⬇️ Descargar FlappyDiver.exe](https://github.com/MarcoPazMartinez/flappy-ocean/releases/latest/download/FlappyDiver.exe)** (última versión, también en la sección [Releases](https://github.com/MarcoPazMartinez/flappy-ocean/releases)).
+
+No necesita instalar Python: se descarga y se abre con doble clic. Si Windows muestra "Windows protegió su PC", elegí *Más información → Ejecutar de todas formas*. El ranking se guarda en la carpeta `database` junto al `.exe`.
+
 ## Descripción
 **Flappy Diver** (repositorio `flappy-ocean`) es un juego 2D desarrollado en Python con Pygame, ambientado en un acuario. El jugador controla a un pez que nada entre matas de algas violetas y verdes, esquiva peces, pulpos y tiburones, suma puntos y trata de llegar en **2 minutos** a la meta: un tubo de cristal al que el pez entra nadando. Los mejores puntajes quedan guardados en un **ranking Top 10** con SQLite.
 
